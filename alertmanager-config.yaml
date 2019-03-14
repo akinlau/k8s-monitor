@@ -1,0 +1,28 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: "mail.xxxx.com:25"
+  smtp_from: "example@xxxx.com"
+  smtp_auth_username: "expample@xxxx.com"
+  smtp_auth_password: "pass"
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 15m
+  receiver: k8s-alert
+  routes:
+  - match_re:
+      alertname: ^(host_cpu_usage|node_filesystem_free|host_down)$
+    receiver: k8s-alert
+    routes:
+    - match:
+        severity: critical
+      receiver: k8s-alert
+  - match:
+      alertname: DeadMansSwitch
+    receiver: 'null'
+receivers:
+- name: "k8s-alert"
+  email_configs:
+  - to: "example@xxxx.com"
+- name: 'null'
